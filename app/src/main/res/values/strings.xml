@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Easy Way</string>
+    <!--Login's strings-->
+    <string name="login_title">Login</string>
+    <string name="login_subtitle">Efetue o login</string>
+    <string name="login_send">Enviar</string>
+    <string name="login_placeholder_number">Código de Funcionario</string>
+    <string name="login_placeholder_password">Senha</string>
+    <!--Main's strings-->
+    <string name="main_start">Iniciar expediente</string>
+    <string name="main_verify">Consultar holerite</string>
+    <string name="main_worked">Horas trabalhadas</string>
+    <string name="main_logout">Logout</string>
+    <string name="main_stop">Parar expediente</string>
 </resources>

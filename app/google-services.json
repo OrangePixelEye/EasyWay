@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "536452968999",
+    "firebase_url": "https://easy-way-f28d1.firebaseio.com",
+    "project_id": "easy-way-f28d1",
+    "storage_bucket": "easy-way-f28d1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:536452968999:android:0048778ae67bfe76439402",
+        "android_client_info": {
+          "package_name": "com.bento.easyway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "536452968999-dsbu4i4io5sjom2lebq1ac57jaj870a3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQz4P1QEXyWA94WGd51jbLxdW-UsY38Io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "536452968999-dsbu4i4io5sjom2lebq1ac57jaj870a3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
