@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureScreen() {
-        if (is_logged){hello.setText("BEM VINDO: " + user.getName());}
+        if (is_logged){hello.setText("Bem Vindo: " + user.getName());}
     }
 
     private void sendWorked(){

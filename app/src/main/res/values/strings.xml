@@ -6,6 +6,7 @@
     <string name="login_send">Enviar</string>
     <string name="login_placeholder_number">Código de Funcionario</string>
     <string name="login_placeholder_password">Senha</string>
+    <string name="login_wellcome">Efetue Seu Login</string>
     <!--Main's strings-->
     <string name="main_start">Iniciar expediente</string>
     <string name="main_verify">Consultar holerite</string>
