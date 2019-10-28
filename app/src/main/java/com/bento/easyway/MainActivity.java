@@ -3,19 +3,39 @@ package com.bento.easyway;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -32,7 +52,14 @@ public class MainActivity extends AppCompatActivity {
     User user;
     boolean is_logged = false;
     boolean is_working = false;
-    Date currentTime;
+    File localFile;
+    //date
+    int currentYear;
+    int currentDay;
+    int currentMonth;
+    double salary;
+    double old_salary;
+    double total;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,10 +78,7 @@ public class MainActivity extends AppCompatActivity {
         btn_consult.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, HoleriteActivity.class);
-                intent.putExtra("user", user);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                downloadPdf();
             }
         });
 
@@ -66,7 +90,12 @@ public class MainActivity extends AppCompatActivity {
                     working_chronometer.setBase(SystemClock.elapsedRealtime());
                     working_chronometer.start();
                     working_chronometer.setVisibility(View.VISIBLE);
-                    currentTime = Calendar.getInstance().getTime();
+                    Date date = Calendar.getInstance().getTime();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(date);
+                    currentDay = cal.get(Calendar.DAY_OF_MONTH);
+                    currentMonth = cal.get(Calendar.MONTH);
+                    currentYear = cal.get(Calendar.YEAR);
                     btn_start.setText(R.string.main_stop);
                 }else {
                     is_working = false;
@@ -96,6 +125,47 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         configureScreen();
+    }
+
+    private void openPdf(File file){
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        Uri path = Uri.fromFile(file);
+        Intent pdfOpenintent = new Intent(Intent.ACTION_VIEW);
+        pdfOpenintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        pdfOpenintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        pdfOpenintent.setDataAndType(path, "application/pdf");
+        try {
+            startActivity(pdfOpenintent);
+        }
+        catch (ActivityNotFoundException e) {
+
+        }
+    }
+
+    private void downloadPdf() {
+// Create a storage reference from our app
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+
+        storageRef.child("pdf.pdf").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri.toString()));
+                startActivity(browserIntent);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
     }
 
     private void configureScreen() {
@@ -157,24 +227,50 @@ public class MainActivity extends AppCompatActivity {
                 time = "0" + String.valueOf(seconds);
             }
         }
+        calculate(hours,minutes);
 
-        Worked worked = new Worked(currentTime.toString(),time,user.getNumero());
-        calculate();
-        FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").add(worked).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                hello.setText("Enviado para o banco de dados");
+        Worked worked = new Worked(String.valueOf(currentDay),String.valueOf(currentMonth),String.valueOf(currentYear),time,user.getNumero());
+        verifyDay(worked);
+
+        FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
+                document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
+                .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    hello.setText("Enviado para o banco de dados");
+                }
             }
-        }).addOnFailureListener(new OnFailureListener() {
+        ).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 hello.setText("Error : " + e.getMessage());
             }
         });
-
     }
 
-    private void calculate() {
+    private void verifyDay(Worked worked){
+        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
+                document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                    } else {
+                        Log.d("Teste", "No such document");
+                    }
+                } else {
+                    Log.d("Teste", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+    private void calculate(int hours, int minutes) {
+        salary = 10.0;
+        total = (hours * salary) + (minutes * (salary/60));
     }
 
     private void verifyAuth() {
