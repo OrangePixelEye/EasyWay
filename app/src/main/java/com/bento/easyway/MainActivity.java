@@ -188,50 +188,28 @@ public class MainActivity extends AppCompatActivity {
         int seconds = elapsedMillis;
         String time = "";
 
-        if(hours > 0){
-            if(minutes > 9) {
-                if (seconds > 9) {
-                    time = String.valueOf(hours) + " : " + String.valueOf(minutes) + " : " + String.valueOf(seconds);
-                } else {
-                    time = String.valueOf(hours) + " : " + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
-                }
-            }else{
-                    if(seconds>9) {
-                        time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : " + String.valueOf(seconds);
-                    }else{
-                        time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
-                    }
-            }
 
+        if(minutes > 9) {
+            if (seconds > 9) {
+                time = String.valueOf(hours) + " : " + String.valueOf(minutes) + " : " + String.valueOf(seconds);
+            } else {
+                time = String.valueOf(hours) + " : " + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
+            }
+        }else{
+                if(seconds>9) {
+                    time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : " + String.valueOf(seconds);
+                }else{
+                    time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
+                }
+        }
 
-        }else if(minutes > 0){
-            if(minutes > 9){
-                if(seconds > 9) {
-                    time = String.valueOf(minutes) + " : " + String.valueOf(seconds);
-                }else {
-                    time = String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
-                }
-            }
-            else {
-                if(seconds > 9) {
-                    time = "0"+ String.valueOf(minutes) + " : " + String.valueOf(seconds);
-                }else {
-                    time = "0" + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
-                }
-            }
-        }
-        else {
-            if(seconds > 9) {
-                time = String.valueOf(seconds);
-            }else {
-                time = "0" + String.valueOf(seconds);
-            }
-        }
         calculate(hours,minutes);
 
         Worked worked = new Worked(String.valueOf(currentDay),String.valueOf(currentMonth),String.valueOf(currentYear),time,user.getNumero());
-        verifyDay(worked);
-
+        String result = verifyDay(worked);
+        if(!result.equals("")){
+            worked.setWorked_time(result);
+        }
         FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
                 document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
                 .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -248,7 +226,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void verifyDay(Worked worked){
+    private String verifyDay(final Worked worked){
+        final String[] new_time = new String[1];
+        new_time[0] = "";
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
                 document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -257,7 +237,10 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        Worked add = document.toObject(Worked.class);
+                        String time = add.getWorked_time();
 
+                        new_time[0] = addTime(time,worked.getWorked_time());
                     } else {
                         Log.d("Teste", "No such document");
                     }
@@ -266,6 +249,51 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        return new_time[0];
+    }
+
+    private String addTime(String time_p,String time_n) {
+        String[] parts = time_p.split(":",3);
+        String part1 = parts[0];
+        int hours_to_add = Integer.parseInt(part1.trim());
+
+        String part2 = parts[1];
+        int minutes_to_add = Integer.parseInt(part2.trim());
+
+        String part3 = parts[2];
+        int seconds_to_add = Integer.parseInt(part3.trim());
+
+        String[] parts_n = time_n.split(":",3);
+        String part1_n = parts_n[0];
+        int hours_to_add_n = Integer.parseInt(part1_n.trim());
+
+        String part2_n = parts_n[1];
+        int minutes_to_add_n = Integer.parseInt(part2_n.trim());
+
+        String part3_n = parts_n[2];
+        int seconds_to_add_n = Integer.parseInt(part3_n.trim());
+
+        int hours = hours_to_add + hours_to_add_n;
+        int minutes = minutes_to_add + minutes_to_add_n;
+        int seconds = seconds_to_add + seconds_to_add_n;
+
+        String time= "";
+
+        if(minutes > 9) {
+            if (seconds > 9) {
+                time = String.valueOf(hours) + " : " + String.valueOf(minutes) + " : " + String.valueOf(seconds);
+            } else {
+                time = String.valueOf(hours) + " : " + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
+            }
+        }else{
+            if(seconds>9) {
+                time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : " + String.valueOf(seconds);
+            }else{
+                time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
+            }
+        }
+
+        return time;
     }
 
     private void calculate(int hours, int minutes) {

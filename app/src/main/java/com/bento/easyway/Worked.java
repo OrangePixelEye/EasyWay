@@ -18,6 +18,10 @@ public class Worked {
         this.user = user;
     }
 
+    public void setWorked_time(String worked_time) {
+        this.worked_time = worked_time;
+    }
+
     public String getWorked_day() {
         return worked_day;
     }
