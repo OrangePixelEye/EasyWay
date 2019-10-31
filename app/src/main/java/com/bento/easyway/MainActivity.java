@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     //UI variables
@@ -205,51 +206,65 @@ public class MainActivity extends AppCompatActivity {
 
         calculate(hours,minutes);
 
-        Worked worked = new Worked(String.valueOf(currentDay),String.valueOf(currentMonth),String.valueOf(currentYear),time,user.getNumero());
-        String result = verifyDay(worked);
-        if(!result.equals("")){
-            worked.setWorked_time(result);
-        }
-        FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
-                document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
-                .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    hello.setText("Enviado para o banco de dados");
-                }
-            }
-        ).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                hello.setText("Error : " + e.getMessage());
-            }
-        });
+        Worked worked = new Worked(String.valueOf(currentDay),String.valueOf(currentMonth),String.valueOf(currentYear),time,user.getNumero(),String.valueOf(total));
+        verifyDay(worked);
+
+
     }
 
-    private String verifyDay(final Worked worked){
+    private void verifyDay(final Worked worked){
         final String[] new_time = new String[1];
-        new_time[0] = "";
+
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
                 document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Worked add = document.toObject(Worked.class);
-                        String time = add.getWorked_time();
 
-                        new_time[0] = addTime(time,worked.getWorked_time());
-                    } else {
-                        Log.d("Teste", "No such document");
-                    }
-                } else {
-                    Log.d("Teste", "get failed with ", task.getException());
-                }
+
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        Worked worked1 = documentSnapshot.toObject(Worked.class);
+
+                        if (worked1 == null){
+                            FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
+                                    document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
+                                    .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                          @Override
+                                                                          public void onSuccess(Void aVoid) {
+                                                                              hello.setText("Enviado para o banco de dados");
+                                                                          }
+                                                                      }
+                            ).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    hello.setText("Error : " + e.getMessage());
+                                }
+                            });
+                        }else{
+                            String time = worked1.getWorked_time();
+                            new_time[0] = addTime(time, worked.getWorked_time());
+                            Log.d("Teste", "No such document");
+
+                            worked.setWorked_time(new_time[0]);
+                            FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
+                                    document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
+                                    .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                          @Override
+                                                                          public void onSuccess(Void aVoid) {
+                                                                              hello.setText("Enviado para o banco de dados");
+                                                                          }
+                                                                      }
+                            ).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    hello.setText("Error : " + e.getMessage());
+                                }
+                            });
+                        }
+
             }
         });
-        return new_time[0];
+
     }
 
     private String addTime(String time_p,String time_n) {
@@ -275,7 +290,15 @@ public class MainActivity extends AppCompatActivity {
 
         int hours = hours_to_add + hours_to_add_n;
         int minutes = minutes_to_add + minutes_to_add_n;
+        if(minutes >=60){
+            hours = hours + (minutes/60);
+        }
+
         int seconds = seconds_to_add + seconds_to_add_n;
+
+        if(seconds>=60){
+            minutes = minutes + (seconds/60);
+        }
 
         String time= "";
 
@@ -292,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
                 time = String.valueOf(hours) + " : 0" + String.valueOf(minutes) + " : 0" + String.valueOf(seconds);
             }
         }
-
         return time;
     }
 

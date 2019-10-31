@@ -22,6 +22,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText num;
     private EditText password;
     private Button btn;
+
     User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
         btn = findViewById(R.id.btn_login);
         num = findViewById(R.id.edtxt_login_number);
         password = findViewById(R.id.extxt_login_password);
-
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,9 +46,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
-
 
     private void Login() {
         FirebaseFirestore.getInstance().collection("users").whereEqualTo("numero",num.getText().toString()).get().addOnFailureListener(new OnFailureListener() {
@@ -73,7 +71,6 @@ public class LoginActivity extends AppCompatActivity {
                 else {
                     Toast.makeText(LoginActivity.this, "Usuario não encontrado", Toast.LENGTH_SHORT).show();
                 }
-
             }
 
         });
