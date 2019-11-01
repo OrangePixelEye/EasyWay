@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,8 +20,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText num;
-    private EditText password;
+
+    private ImageView img;
     private Button btn;
 
     User user;
@@ -30,29 +31,25 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //ui
-        btn = findViewById(R.id.btn_login);
-        num = findViewById(R.id.edtxt_login_number);
-        password = findViewById(R.id.extxt_login_password);
+        img = findViewById(R.id.img_login);
 
-        btn.setOnClickListener(new View.OnClickListener() {
+
+        img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String Vnum = num.getText().toString();
-                String Vpassword = password.getText().toString();
-                if(Vnum.equals("") || Vpassword.equals("")){
-                    Toast.makeText(LoginActivity.this, "O numero e senha devem ser preenchidos", Toast.LENGTH_SHORT).show();
-                }else {
+
                     Login();
-                }
+
             }
         });
     }
 
     private void Login() {
-        FirebaseFirestore.getInstance().collection("users").whereEqualTo("numero",num.getText().toString()).get().addOnFailureListener(new OnFailureListener() {
+        FirebaseFirestore.getInstance().collection("users").whereEqualTo("numero","1").get().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(LoginActivity.this, "Usuario não encontrado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
