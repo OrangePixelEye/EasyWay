@@ -10,7 +10,6 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="184dp"
         android:shadowColor="#1E90FF"
         android:shadowDx="1"
         android:shadowDy="1"
@@ -18,8 +17,9 @@
         android:text="@string/login_wellcome"
         android:textSize="30sp"
         android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/img_login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,10 +27,10 @@
         android:id="@+id/img_login"
         android:layout_width="190dp"
         android:layout_height="190dp"
-        android:layout_marginTop="60dp"
         android:src="@mipmap/img_login_round"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textView"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/textView"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

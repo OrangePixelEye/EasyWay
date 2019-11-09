@@ -5,11 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.util.Log;
@@ -17,28 +15,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     //UI variables
@@ -61,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     double salary;
     double old_salary;
     double total;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     currentMonth = cal.get(Calendar.MONTH);
                     currentYear = cal.get(Calendar.YEAR);
                     btn_start.setText(R.string.main_stop);
+
                 }else {
                     is_working = false;
                     btn_start.setText(R.string.main_start);
@@ -214,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void verifyDay(final Worked worked){
         final String[] new_time = new String[1];
+        final String[] new_pay = new String[1];
 
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
                 document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day);
@@ -246,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("Teste", "No such document");
 
                             worked.setWorked_time(new_time[0]);
+                            String pay = worked1.getPay();
+                            //new_pay[0]= addMoney(pay,worked.getPay());
+
                             FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
                                     document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
                                     .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -265,6 +260,53 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private String addMoney(String pay, String pay1) {
+        String new_pay = "";
+
+        int intMoney =0;
+        int intMoneyCents = 0;
+        int intMoneyOld = 0;
+        int intMoneyCentsOld = 0;
+
+        String[] parts = pay.split(".",2);
+        String part1 = parts[0];
+            if(part1.equals("")){
+                intMoney =0;
+            }else {
+                intMoney = Integer.parseInt(part1);
+            }
+        String part2 = parts[1];
+            if(part2.equals("")){
+                intMoneyCents = 0;
+            }else {
+                 intMoneyCents = Integer.parseInt(part2.trim());
+            }
+        String[] parts1 = pay1.split(".",2);
+        String part1_ = parts1[1];
+            if(part1_.equals("")){
+                intMoneyOld =0;
+            }else {
+                intMoneyOld = Integer.parseInt(part1_);
+            }
+        String part2_ = parts1[1];
+        if(part2_.equals("")){
+            intMoneyCentsOld = 0;
+        }else {
+            intMoneyCentsOld = Integer.parseInt(part2_.trim());
+        }
+        intMoneyCents = intMoneyCents + intMoneyCentsOld;
+        if(intMoneyCents >= 100){
+            intMoneyCents =- 100;
+            intMoney =intMoney+1;
+        }
+
+        intMoney =intMoney+intMoneyOld;
+
+        new_pay = String.valueOf(intMoney) + "." + String.valueOf(intMoneyCents);
+
+        return new_pay;
     }
 
     private String addTime(String time_p,String time_n) {
@@ -292,12 +334,14 @@ public class MainActivity extends AppCompatActivity {
         int minutes = minutes_to_add + minutes_to_add_n;
         if(minutes >=60){
             hours = hours + (minutes/60);
+            minutes = minutes - 60;
         }
 
         int seconds = seconds_to_add + seconds_to_add_n;
 
         if(seconds>=60){
             minutes = minutes + (seconds/60);
+           seconds = seconds -60;
         }
 
         String time= "";
@@ -319,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void calculate(int hours, int minutes) {
-        salary = 10.0;
+        salary = 60.0;
         total = (hours * salary) + (minutes * (salary/60));
     }
 

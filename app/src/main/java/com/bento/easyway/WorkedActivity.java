@@ -1,20 +1,18 @@
 package com.bento.easyway;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +60,7 @@ public class WorkedActivity extends AppCompatActivity {
                     final Worked worked;
                     worked = doc.toObject(Worked.class);
                     salary[0] = salary[0] + Double.parseDouble(worked.getPay());
-
+                    DecimalFormat format = new DecimalFormat("#.##");
                     String[] parts = worked.getWorked_time().split(":",3);
                     String part1 = parts[0];
                     hours_total[0] = hours_total[0] + Integer.parseInt(part1.trim());
@@ -73,7 +71,8 @@ public class WorkedActivity extends AppCompatActivity {
                     String part3 = parts[2];
                     seconds_total[0] = seconds_total[0] + Integer.parseInt(part3.trim());
 
-                    txt.setText("Esse mês você trabalhou "+hours_total[0]+"horas,"+user.getName()+" e recebera R$"+ salary[0] +" por elas");
+                    salary[0] = Double.valueOf(format.format(salary[0]));
+                    txt.setText("Esse mês você trabalhou "+hours_total[0]+" horas,"+user.getName()+" e recebera R$"+ salary[0] +" por elas");
                 }
             }
         });

@@ -28,6 +28,10 @@ public class Worked {
         return pay;
     }
 
+    public void setPay(String pay) {
+        this.pay = pay;
+    }
+
     public String getWorked_day() {
         return worked_day;
     }
