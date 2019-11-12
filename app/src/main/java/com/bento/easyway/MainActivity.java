@@ -239,8 +239,8 @@ public class MainActivity extends AppCompatActivity {
 
                             worked.setWorked_time(new_time[0]);
                             String pay = worked1.getPay();
-                            //new_pay[0]= addMoney(pay,worked.getPay());
-
+                            new_pay[0]= addMoney(pay,worked.getPay());
+                            worked.setPay(new_pay[0]);
                             FirebaseFirestore.getInstance().collection("users").document(user.getDocReference()).collection("Worked").
                                     document(String.valueOf(currentYear)).collection(String.valueOf(currentMonth)).document(worked.worked_day)
                                     .set(worked).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -263,49 +263,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String addMoney(String pay, String pay1) {
-        String new_pay = "";
-
-        int intMoney =0;
-        int intMoneyCents = 0;
-        int intMoneyOld = 0;
-        int intMoneyCentsOld = 0;
-
-        String[] parts = pay.split(".",2);
-        String part1 = parts[0];
-            if(part1.equals("")){
-                intMoney =0;
-            }else {
-                intMoney = Integer.parseInt(part1);
-            }
-        String part2 = parts[1];
-            if(part2.equals("")){
-                intMoneyCents = 0;
-            }else {
-                 intMoneyCents = Integer.parseInt(part2.trim());
-            }
-        String[] parts1 = pay1.split(".",2);
-        String part1_ = parts1[1];
-            if(part1_.equals("")){
-                intMoneyOld =0;
-            }else {
-                intMoneyOld = Integer.parseInt(part1_);
-            }
-        String part2_ = parts1[1];
-        if(part2_.equals("")){
-            intMoneyCentsOld = 0;
-        }else {
-            intMoneyCentsOld = Integer.parseInt(part2_.trim());
-        }
-        intMoneyCents = intMoneyCents + intMoneyCentsOld;
-        if(intMoneyCents >= 100){
-            intMoneyCents =- 100;
-            intMoney =intMoney+1;
-        }
-
-        intMoney =intMoney+intMoneyOld;
-
-        new_pay = String.valueOf(intMoney) + "." + String.valueOf(intMoneyCents);
-
+        double pay_n,pay_1;
+       pay_n = Double.valueOf(pay);
+       pay_1 = Double.valueOf(pay1);
+       double res = pay_n + pay_1;
+       String new_pay = String.valueOf(res);
         return new_pay;
     }
 
