@@ -1,7 +1,7 @@
 package com.bento.easyway;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.*;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_worked;
     private Button btn_logout;
     private Chronometer working_chronometer;
-    //some stuff that i will use
+
     private long lastPause;
     User user;
     boolean is_logged = false;
@@ -138,12 +138,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(pdfOpenintent);
         }
         catch (ActivityNotFoundException e) {
-
+            //to-do
         }
     }
 
     private void downloadPdf() {
-// Create a storage reference from our app
+        // Create a storage reference from our app
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
         storageRef.child("pdf.pdf").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {

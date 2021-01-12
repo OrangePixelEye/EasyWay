@@ -25,8 +25,6 @@ public class WorkedActivity extends AppCompatActivity {
     int currentDay;
     int currentMonth;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +70,7 @@ public class WorkedActivity extends AppCompatActivity {
                     seconds_total[0] = seconds_total[0] + Integer.parseInt(part3.trim());
 
                     salary[0] = Double.valueOf(format.format(salary[0]));
-                    txt.setText("Esse mês você trabalhou "+hours_total[0]+" horas,"+user.getName()+" e recebera R$"+ salary[0] +" por elas");
+                    txt.setText("Esse mês você trabalhou "+ hours_total[0] +" horas,"+user.getName()+" e recebera R$"+ salary[0] +" por elas");
                 }
             }
         });
